@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple_touch_icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon_32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon_16x16.png">
+  <link rel="mask-icon" href="/images/favicon_32x32.png" color="#222">
+  <meta name="google-site-verification" content="SIW1knhNluYySlcFSRwWqLNZERFF9Mv6vufDG06A45M">
+  <meta name="baidu-site-verification" content="kNv8gGrGkQ">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.half9000.com","root":"/","scheme":"Pisces","version":"8.0.0-rc.3","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="200. 岛屿数量 给你一个由 &#39;1&#39;（陆地）和 &#39;0&#39;（水）组成的的二维网格，请你计算网格中岛屿的数量。 岛屿总是被水包围，并且每座岛屿只能由水平方向和&#x2F;或竖直方向上相邻的陆地连接形成。 此外，你可以假设该网格的四条边均被水包围。 示例 1： 输入：grid &#x3D; [  [&quot;1&quot;,&quot;1&quot;,&quot;1&quot;,&quot;1&quot;,&amp;q">
+<meta property="og:type" content="article">
+<meta property="og:title" content="LeetCode(#200) 岛屿数量问题-题解笔记 (Python)">
+<meta property="og:url" content="https://blog.half9000.com/2020/11/06/LeetCode-NumberofIslands-Solution/index.html">
+<meta property="og:site_name" content="HALF9000&#39;s Blog">
+<meta property="og:description" content="200. 岛屿数量 给你一个由 &#39;1&#39;（陆地）和 &#39;0&#39;（水）组成的的二维网格，请你计算网格中岛屿的数量。 岛屿总是被水包围，并且每座岛屿只能由水平方向和&#x2F;或竖直方向上相邻的陆地连接形成。 此外，你可以假设该网格的四条边均被水包围。 示例 1： 输入：grid &#x3D; [  [&quot;1&quot;,&quot;1&quot;,&quot;1&quot;,&quot;1&quot;,&amp;q">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-11-06T01:17:40.000Z">
+<meta property="article:modified_time" content="2020-11-06T01:17:40.000Z">
+<meta property="article:author" content="half9000">
+<meta property="article:tag" content="Python">
+<meta property="article:tag" content="LeetCode">
+<meta property="article:tag" content="题解笔记">
+<meta property="article:tag" content="Algorithms">
+<meta property="article:tag" content="并查集">
+<meta property="article:tag" content="Data Structures">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://blog.half9000.com/2020/11/06/LeetCode-NumberofIslands-Solution/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>LeetCode(#200) 岛屿数量问题-题解笔记 (Python) | HALF9000's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+        <span class="toggle-line toggle-line-first"></span>
+        <span class="toggle-line toggle-line-middle"></span>
+        <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">HALF9000's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Import this</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://blog.half9000.com/2020/11/06/LeetCode-NumberofIslands-Solution/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://cdn.jsdelivr.net/gh/Half9000/half9000.github.io/images/half9000_avatar.png">
+      <meta itemprop="name" content="half9000">
+      <meta itemprop="description" content="Viva La Vida">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="HALF9000's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          LeetCode(#200) 岛屿数量问题-题解笔记 (Python)
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-11-06 09:17:40" itemprop="dateCreated datePublished" datetime="2020-11-06T09:17:40+08:00">2020-11-06</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/leetcode/" itemprop="url" rel="index"><span itemprop="name">力扣笔记</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>3.1k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>3 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="岛屿数量"><a href="https://leetcode-cn.com/problems/number-of-islands/" target="_blank" rel="noopener">200. 岛屿数量</a></h2>
+<p>给你一个由 <code>'1'</code>（陆地）和 <code>'0'</code>（水）组成的的二维网格，请你计算网格中岛屿的数量。</p>
+<p>岛屿总是被水包围，并且每座岛屿只能由水平方向和/或竖直方向上相邻的陆地连接形成。</p>
+<p>此外，你可以假设该网格的四条边均被水包围。</p>
+<p><strong>示例 1：</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">输入：grid &#x3D; [</span><br><span class="line">  [&quot;1&quot;,&quot;1&quot;,&quot;1&quot;,&quot;1&quot;,&quot;0&quot;],</span><br><span class="line">  [&quot;1&quot;,&quot;1&quot;,&quot;0&quot;,&quot;1&quot;,&quot;0&quot;],</span><br><span class="line">  [&quot;1&quot;,&quot;1&quot;,&quot;0&quot;,&quot;0&quot;,&quot;0&quot;],</span><br><span class="line">  [&quot;0&quot;,&quot;0&quot;,&quot;0&quot;,&quot;0&quot;,&quot;0&quot;]</span><br><span class="line">]</span><br><span class="line">输出：1</span><br></pre></td></tr></table></figure>
+<p><strong>示例 2：</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">输入：grid &#x3D; [</span><br><span class="line">  [&quot;1&quot;,&quot;1&quot;,&quot;0&quot;,&quot;0&quot;,&quot;0&quot;],</span><br><span class="line">  [&quot;1&quot;,&quot;1&quot;,&quot;0&quot;,&quot;0&quot;,&quot;0&quot;],</span><br><span class="line">  [&quot;0&quot;,&quot;0&quot;,&quot;1&quot;,&quot;0&quot;,&quot;0&quot;],</span><br><span class="line">  [&quot;0&quot;,&quot;0&quot;,&quot;0&quot;,&quot;1&quot;,&quot;1&quot;]</span><br><span class="line">]</span><br><span class="line">输出：3</span><br></pre></td></tr></table></figure>
+<p><strong>提示：</strong></p>
+<ul>
+<li><code>m == grid.length</code></li>
+<li><code>n == grid[i].length</code></li>
+<li><code>1 &lt;= m, n &lt;= 300</code></li>
+<li><code>grid[i][j]</code> 的值为 <code>'0'</code> 或 <code>'1'</code></li>
+</ul>
+<a id="more"></a>
+<h2 id="方法一深度优先搜索-dfs">方法一：深度优先搜索 (DFS)</h2>
+<p><strong>目标</strong>：给定一个二维网格，求 <code>'1'</code> 的数量，其中，竖向和横向上相邻的 <code>'1'</code> 被视为一个。</p>
+<p><strong>思路</strong>：首先想到的是最简单的方法，遍历整个网格，遇到为 <code>'1'</code> 的网格，向它的上下左右四个方向深入搜索。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">numIslands</span><span class="params">(self, grid: List[List[str]])</span> -&gt; int:</span></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> grid: <span class="keyword">return</span> <span class="number">0</span></span><br><span class="line">        <span class="comment"># 计数器初始化为 0</span></span><br><span class="line">        cnt = <span class="number">0</span></span><br><span class="line">        rowsn = len(grid)</span><br><span class="line">        colsn = len(grid[<span class="number">0</span>])</span><br><span class="line">        <span class="function"><span class="keyword">def</span> <span class="title">dfs</span><span class="params">(i,j)</span>:</span></span><br><span class="line">            <span class="comment"># 边界条件</span></span><br><span class="line">            <span class="keyword">if</span> <span class="keyword">not</span> ( <span class="number">0</span>&lt;=i&lt;rowsn <span class="keyword">and</span> <span class="number">0</span>&lt;=j&lt;colsn <span class="keyword">and</span> grid[i][j] == <span class="string">'1'</span>):</span><br><span class="line">                <span class="keyword">return</span></span><br><span class="line">            <span class="comment"># 记录访问过的网格</span></span><br><span class="line">            grid[i][j] = <span class="string">'2'</span></span><br><span class="line">            <span class="comment"># 遍历网格的四个邻居</span></span><br><span class="line">            dfs(i+<span class="number">1</span>,j)</span><br><span class="line">            dfs(i<span class="number">-1</span>,j)</span><br><span class="line">            dfs(i,j+<span class="number">1</span>)</span><br><span class="line">            dfs(i,j<span class="number">-1</span>)</span><br><span class="line">        <span class="comment"># 遍历整个网格</span></span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(rowsn):</span><br><span class="line">            <span class="keyword">for</span> j <span class="keyword">in</span> range(colsn):</span><br><span class="line">                <span class="keyword">if</span>  grid[i][j] == <span class="string">'1'</span>:</span><br><span class="line">                    cnt += <span class="number">1</span></span><br><span class="line">                    dfs(i,j)</span><br><span class="line">        <span class="keyword">return</span> cnt</span><br></pre></td></tr></table></figure>
+<p><strong>时间复杂度：</strong> <span class="math inline">\(O(MN)\)</span>，其中，<span class="math inline">\(M,N\)</span> 分别为网格的行数和列数，也既网格的数量大小。</p>
+<p><strong>空间复杂度：</strong> <span class="math inline">\(O(MN)\)</span>，DFS 的最大层数也为网格的数量大小。</p>
+<h2 id="方法二广度优先搜索bfs">方法二：广度优先搜索(BFS)</h2>
+<p>类似地，可以想到，DFS 的解法往往会伴随着 BFS 的解法。</p>
+<p>在这里，使用队列作为辅助，实现本题的 BFS 解法。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">numIslands</span><span class="params">(self, grid: List[List[str]])</span> -&gt; int:</span></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> grid: <span class="keyword">return</span> <span class="number">0</span></span><br><span class="line">        <span class="comment"># 计数器初始化为 0</span></span><br><span class="line">        cnt = <span class="number">0</span></span><br><span class="line">        rowsn = len(grid)</span><br><span class="line">        colsn = len(grid[<span class="number">0</span>])</span><br><span class="line">        <span class="comment"># 上下左右四个邻居</span></span><br><span class="line">        choices = ((<span class="number">1</span>,<span class="number">0</span>),(<span class="number">-1</span>,<span class="number">0</span>),(<span class="number">0</span>,<span class="number">1</span>),(<span class="number">0</span>,<span class="number">-1</span>))</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">def</span> <span class="title">bfs</span><span class="params">(i,j)</span>:</span></span><br><span class="line">            <span class="comment"># 使用双端队列，优化时间效率</span></span><br><span class="line">            q = collections.deque()</span><br><span class="line">            q.append((i,j))</span><br><span class="line">            <span class="keyword">while</span> q:</span><br><span class="line">                i, j = q.popleft()</span><br><span class="line">                <span class="keyword">if</span> <span class="number">0</span> &lt;= i &lt; rowsn <span class="keyword">and</span> <span class="number">0</span> &lt;= j &lt; colsn <span class="keyword">and</span> grid[i][j] == <span class="string">'1'</span>:</span><br><span class="line">                    grid[i][j] = <span class="string">'2'</span></span><br><span class="line">                    <span class="keyword">for</span> di, dj <span class="keyword">in</span> choices:</span><br><span class="line">                        q.append((i+di,j+dj))</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 遍历整个网格</span></span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(rowsn):</span><br><span class="line">            <span class="keyword">for</span> j <span class="keyword">in</span> range(colsn):</span><br><span class="line">                <span class="keyword">if</span>  grid[i][j] == <span class="string">'1'</span>:</span><br><span class="line">                    cnt += <span class="number">1</span></span><br><span class="line">                    bfs(i,j)</span><br><span class="line">        <span class="keyword">return</span> cnt</span><br></pre></td></tr></table></figure>
+<p><strong>时间复杂度：</strong> <span class="math inline">\(O(MN)\)</span></p>
+<p><strong>空间复杂度：</strong> <span class="math inline">\(O(min(M,N))\)</span>，在最坏情况下，队列的大小为<span class="math inline">\(min(M,N)\)</span></p>
+<h2 id="方法三并查集">方法三：并查集</h2>
+<p>连通性问题一般可以想到使用「并查集」的数据结构。</p>
+<blockquote>
+<p>关于并查集的相关知识，可以查看 Robert Sedgewick 所著的《算法（第4版）》一书中的第一章第五节。</p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">UF</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, n)</span>:</span></span><br><span class="line">        self.count = n</span><br><span class="line">        self.parent = [i <span class="keyword">for</span> i <span class="keyword">in</span> range(n)]</span><br><span class="line">        self.size = [<span class="number">1</span> <span class="keyword">for</span> _ <span class="keyword">in</span> range(n)]</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">union</span><span class="params">(self, p, q)</span>:</span></span><br><span class="line">        rootp = self.find(p)</span><br><span class="line">        rootq = self.find(q)</span><br><span class="line">        <span class="keyword">if</span> rootp == rootq: <span class="keyword">return</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"># 平衡性优化, 基于 size</span></span><br><span class="line">        <span class="keyword">if</span> self.size[rootp] &gt; self.size[rootq]:</span><br><span class="line">            self.parent[rootq] = rootp</span><br><span class="line">            self.size[rootp] += self.size[rootq]</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            self.parent[rootp] = rootq</span><br><span class="line">            self.size[rootq] += self.size[rootp]</span><br><span class="line">        self.count -= <span class="number">1</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">find</span><span class="params">(self, x)</span>:</span></span><br><span class="line">        <span class="keyword">while</span> x != self.parent[x]:</span><br><span class="line">            <span class="comment"># 路径压缩</span></span><br><span class="line">            self.parent[x] = self.parent[self.parent[x]]</span><br><span class="line">            x = self.parent[x]</span><br><span class="line">        <span class="keyword">return</span> x</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">is_connected</span><span class="params">(self, p, q)</span>:</span></span><br><span class="line">        <span class="keyword">return</span> self.find(p) == self.find(q)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">numIslands</span><span class="params">(self, grid: List[List[str]])</span> -&gt; int:</span></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> grid: <span class="keyword">return</span> <span class="number">0</span></span><br><span class="line">        rowsn = len(grid)</span><br><span class="line">        colsn = len(grid[<span class="number">0</span>])</span><br><span class="line">        uf = UF(rowsn*colsn)</span><br><span class="line">        <span class="comment"># 统计'1'的个数：</span></span><br><span class="line">        cnt = <span class="number">0</span></span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(rowsn):</span><br><span class="line">            <span class="keyword">for</span> j <span class="keyword">in</span> range(colsn):</span><br><span class="line">                <span class="keyword">if</span> grid[i][j] == <span class="string">'1'</span>: cnt += <span class="number">1</span></span><br><span class="line">        uf.count = cnt</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(rowsn):</span><br><span class="line">            <span class="keyword">for</span> j <span class="keyword">in</span> range(colsn):</span><br><span class="line">                <span class="keyword">if</span> grid[i][j] == <span class="string">'1'</span>:</span><br><span class="line">                    <span class="comment"># 标记探索过的网格</span></span><br><span class="line">                    grid[i][j] = <span class="string">'2'</span></span><br><span class="line">                    <span class="comment"># 只需向右下方查看合并</span></span><br><span class="line">                    <span class="keyword">for</span> di, dj <span class="keyword">in</span> ((<span class="number">0</span>,<span class="number">1</span>), (<span class="number">1</span>,<span class="number">0</span>)):</span><br><span class="line">                        ii = i + di</span><br><span class="line">                        jj = j + dj</span><br><span class="line">                        <span class="keyword">if</span> <span class="number">0</span> &lt;= ii &lt; rowsn <span class="keyword">and</span> <span class="number">0</span> &lt;= jj &lt; colsn <span class="keyword">and</span> grid[ii][jj] == <span class="string">'1'</span>:</span><br><span class="line">                            uf.union(i*colsn+j, ii*colsn+jj)</span><br><span class="line">        <span class="keyword">return</span> uf.count</span><br></pre></td></tr></table></figure>
+<p><strong>空间复杂度：</strong> <span class="math inline">\(O(MN)\)</span></p>
+<p><strong>时间复杂度：</strong> <span class="math inline">\(O(log* n)\)</span>，证明略，<span class="math inline">\(log*n\)</span> 为<a href="https://en.wikipedia.org/wiki/Iterated_logarithm" target="_blank" rel="noopener">Iterated logarithm</a></p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>half9000
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://blog.half9000.com/2020/11/06/LeetCode-NumberofIslands-Solution/" title="LeetCode(#200) 岛屿数量问题-题解笔记 (Python)">https://blog.half9000.com/2020/11/06/LeetCode-NumberofIslands-Solution/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Python/" rel="tag"><i class="fa fa-tag"></i> Python</a>
+              <a href="/tags/LeetCode/" rel="tag"><i class="fa fa-tag"></i> LeetCode</a>
+              <a href="/tags/%E9%A2%98%E8%A7%A3%E7%AC%94%E8%AE%B0/" rel="tag"><i class="fa fa-tag"></i> 题解笔记</a>
+              <a href="/tags/Algorithms/" rel="tag"><i class="fa fa-tag"></i> Algorithms</a>
+              <a href="/tags/%E5%B9%B6%E6%9F%A5%E9%9B%86/" rel="tag"><i class="fa fa-tag"></i> 并查集</a>
+              <a href="/tags/Data-Structures/" rel="tag"><i class="fa fa-tag"></i> Data Structures</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/11/05/LeetCode-AddTwoNumers-Solution/" rel="prev" title="LeetCode(#2) 两数相加-题解笔记 (Python)">
+      <i class="fa fa-chevron-left"></i> LeetCode(#2) 两数相加-题解笔记 (Python)
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#岛屿数量"><span class="nav-number">1.</span> <span class="nav-text">200. 岛屿数量</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#方法一深度优先搜索-dfs"><span class="nav-number">2.</span> <span class="nav-text">方法一：深度优先搜索 (DFS)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#方法二广度优先搜索bfs"><span class="nav-number">3.</span> <span class="nav-text">方法二：广度优先搜索(BFS)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#方法三并查集"><span class="nav-number">4.</span> <span class="nav-text">方法三：并查集</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="half9000"
+      src="https://cdn.jsdelivr.net/gh/Half9000/half9000.github.io/images/half9000_avatar.png">
+  <p class="site-author-name" itemprop="name">half9000</p>
+  <div class="site-description" itemprop="description">Viva La Vida</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">6</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/half9000" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;half9000" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:me@half9000.com" title="E-Mail → mailto:me@half9000.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://t.me/HAx9000" title="Telegram → https:&#x2F;&#x2F;t.me&#x2F;HAx9000" rel="noopener" target="_blank"><i class="fab fa-telegram fa-fw"></i>Telegram</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">half9000</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">16k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">15 分钟</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div><script color="0,0,255" opacity="0.5" zIndex="-1" count="99" src="https://cdn.jsdelivr.net/npm/canvas-nest.js@1/dist/canvas-nest.js"></script>
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="//cdn.jsdelivr.net/npm/animejs@3.1.0/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/velocity-animate@1/velocity.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/velocity-animate@1/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+  
+  <script>
+    (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      bp.src = (curProtocol === 'https') ? 'https://zz.bdstatic.com/linksubmit/push.js' : 'http://push.zhanzhang.baidu.com/push.js';
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '6933b2ca3d6ff47d0a04',
+      clientSecret: '48ee18b96bd18e43ab96bac42059b41c282a1eac',
+      repo        : 'half9000.github.io',
+      owner       : 'Half9000',
+      admin       : ['Half9000'],
+      id          : '352340f426df6f501a32ef2cc210ab56',
+        language: 'zh-CN',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>
